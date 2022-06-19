@@ -14,7 +14,7 @@ using the Breadth First Search (BFS) algorithm on an unweighted graph.
 const int nRows = 5;
 const int nCols = 7;
 
-template<typename T>
+template <typename T>
 void visualizeGrid(std::array<std::array<T, nCols>, nRows> grid);
 
 int main()
@@ -26,18 +26,21 @@ int main()
                                                                 {".", ".", ".", "#", ".", ".", "." },   
                                                                 {".", ".", ".", "#", ".", ".", "G" }}};
    
+
+    // Path matrix
+    std::array<std::array<std::string, nCols>, nRows> path = grid;   
     visualizeGrid(grid);
 
     // Point structure
     struct Point 
     {
         int xCoord, yCoord;
+
         bool operator!=(const Point& second) const
         {
             return (xCoord != second.xCoord || yCoord != second.yCoord);
         }
-    }
-    ;
+    };
 
     // Starting coordinates
     Point start; start.xCoord = 0; start.yCoord = 0;
@@ -75,9 +78,8 @@ int main()
     while(!xCoordQueue.empty())
     {
         // Adding in queues
-        int xCurr = xCoordQueue.front(); xCoordQueue.pop();
-        int yCurr = yCoordQueue.front(); yCoordQueue.pop();
-       
+        xCurr = xCoordQueue.front(); xCoordQueue.pop();
+        yCurr = yCoordQueue.front(); yCoordQueue.pop();
         // Ending condition
         if (grid[yCurr][xCurr] == "G")
         {
@@ -104,10 +106,11 @@ int main()
             xCoordParents[xNext] = xCurr;
             yCoordParents[yNext] = yCurr;
 
-            // Adding to the visited map
+            // Adding to the visited 2d array
             visited[yNext][xNext] = true;
 
         }
+
         nodesLeftInLayer--;
 
         if (nodesLeftInLayer == 0)
@@ -121,25 +124,36 @@ int main()
 
     // If the goal is reached
     int result = (reachEnd) ? moveCount : -1;
-    std::cout << "Move Count: "; std::cout << result; std::cout << "\n";
-    
-    // Path matrix
-    std::array<std::array<bool, nCols>, nRows> path{};
+    std::cout << "Move Count: "; std::cout << result << " \n";
+
+    for (int xCoord: xCoordParents){std::cout << xCoord << " - ";}
+    std::cout << "\n";
+    for (int yCoord: yCoordParents){std::cout << yCoord <<" - ";}
+
     Point destination; destination.xCoord = xCurr; destination.yCoord = yCurr;
     Point reverse = destination;
 
-    while(reverse != start)
+    int i= 0;
+    while(reverse.xCoord != start.xCoord || reverse.yCoord != start.yCoord)
     {
-        path[reverse.yCoord][reverse.xCoord] = true;
-        
-        reverse.xCoord = xCoordParents[reverse.xCoord];
-        reverse.yCoord = yCoordParents[reverse.yCoord];
-
         std::cout << reverse.xCoord << " - " << reverse.yCoord << "\n";
+
+        int xParent = xCoordParents[reverse.xCoord];
+        int yParent = yCoordParents[reverse.yCoord];
+
+
+        path[yParent][xParent] = "x";
+
+        reverse.xCoord = xParent;
+        reverse.yCoord = yParent;
+
+
+        if (i == moveCount -1){break;}
+        i++;
     }
 
     // Visited Nodes
-    std::cout << "Visited grid:: \n"; 
+    std::cout << "Path grid: \n"; 
     visualizeGrid(path);
 
     // Making sure queues are empty
@@ -147,8 +161,7 @@ int main()
     std::cout << "Y queue empty: " <<  std::boolalpha << yCoordQueue.empty() <<"\n";
 }
 
-
-template<typename T>
+template <typename T>
 void visualizeGrid(std::array<std::array<T, nCols>, nRows> grid)
 {
     for (std::array<T, nCols> longitude: grid)
